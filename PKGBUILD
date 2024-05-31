@@ -1,7 +1,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
-pkgbase=linux
-pkgver=6.9.2.arch1
+pkgbase=linux-lljy
+pkgver=6.7.PRJC
 pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/archlinux/linux'
@@ -29,35 +29,26 @@ options=(
   !debug
   !strip
 )
-_srcname=linux-${pkgver%.*}
+_srcname=linux-lljy
 _srctag=v${pkgver%.*}-${pkgver##*.}
 source=(
-  https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.{xz,sign}
-  $url/releases/download/$_srctag/linux-$_srctag.patch.zst{,.sig}
   config  # the main kernel config file
 )
 validpgpkeys=(
-  ABAF11C65A2970B130ABE3C479BE3E4300411886  # Linus Torvalds
-  647F28654894E3BD457199BE38DBBDC86092693E  # Greg Kroah-Hartman
   83BC8889351B5DEBBB68416EB8AC08600F108CDF  # Jan Alexander Steffens (heftig)
 )
 # https://www.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
-sha256sums=('d46c5bdf2c5961cc2a4dedefe0434d456865e95e4a7cd9f93fff054f9090e5f9'
-            'SKIP'
-            'be5cb9b693a965be2b0c54e4d1b9339c18524a45accd8ce6837b61a8d903b0fb'
-            'SKIP'
-            'bf33bb233f852dd27cd9970c348987aa32325d695c22e7a793f4dfbd8fd6dc4c')
-b2sums=('ae19877e19239c2b521cdf04d182c0ee849228c9ecb4c9dddb626d85ed51faaa5215cc70b5c1ad203c346df85197cd5512894a27eba1c1fd6add9cd2fbaa2a3e'
-        'SKIP'
-        '57add7ac2a297563b135db052ea9dae31b81e5ea338c909e33584be06086295c8498ac0dcc676d2377f68ac078a23648bc46617e66b85ffe08dd33fd207dbe46'
-        'SKIP'
-        'b57ce6976d7ac63ad85a05e88c97023a37d230ab561af6cce19d7229e92db9ace0169410ff178649fb1dde192d70d32a7061031be8a5bb75da080579fe8effe1')
+sha256sums=('bf33bb233f852dd27cd9970c348987aa32325d695c22e7a793f4dfbd8fd6dc4c')
+b2sums=('b57ce6976d7ac63ad85a05e88c97023a37d230ab561af6cce19d7229e92db9ace0169410ff178649fb1dde192d70d32a7061031be8a5bb75da080579fe8effe1')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
 export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
 prepare() {
+  if [[ ! -d "$_srcname" ]]; then
+    git clone https://github.com/LLJY/x86-kernel/ -b 6.7-PRJC $_srcname --depth=1
+  fi
   cd $_srcname
 
   echo "Setting version..."
@@ -85,9 +76,9 @@ prepare() {
 
 build() {
   cd $_srcname
-  make all
-  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
-  make htmldocs
+  make all -j$(nproc)
+  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1 -j$(nproc)
+  make htmldocs -j$(nproc)
 }
 
 _package() {
