@@ -1,7 +1,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-lljy
-pkgver=6.7.PRJC
+pkgver=6.10.PRJC
 pkgrel=1
 pkgdesc='Linux'
 url='https://github.com/archlinux/linux'
@@ -47,7 +47,7 @@ export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EP
 
 prepare() {
   if [[ ! -d "$_srcname" ]]; then
-    git clone https://github.com/LLJY/x86-kernel/ -b 6.7-PRJC $_srcname --depth=1
+    git clone https://github.com/LLJY/x86-kernel/ -b 6.10-PRJC $_srcname --depth=1
   fi
   cd $_srcname
 
